@@ -1,0 +1,1 @@
+Read Chapters 5, 11, 12 on Netcad
