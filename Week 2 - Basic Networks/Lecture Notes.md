@@ -253,3 +253,71 @@ Repeater can be used to fix this:
 - Used extensively to provide wireless communications - may be combined with routing hardware to form a wireless router
 - Collisions domains/broadcast domains not divided or increased by these
 - Not very secure - subject to signal interference
+
+Straight-through cable - going _through_ another device
+Rollover cable - talk directly to the device
+Rollover sockets - green, use straightthrough cable to preserve rollover between PC and device
+
+Avoid configuration dialog via Cisco, do not enter switches as it will refuse to let you out. Router can be exited with CTRL+C
+
+Configuration Notes:
+Open MobaXTerm
+
+Click Session (Settings popup should appear - choose session Type)
+
+Click Serial
+
+Click Serial Port dropdown
+
+Select COM number which contains "Prolific" in the description
+
+Set speed to 9600 bps
+
+Click "OK"
+
+Terminal should appear with a non-blinking cursor in the top left (note terminal is no longer under control of Windows/host OS)
+
+Press enter to wake up the device - nothing is currently plugged in though so nothing should happen
+
+Look for blue cable at the back of the PC - memorize socket number
+
+Currently this is CAB2 G12
+
+Plug cable in
+
+Hit enter
+
+<br/>
+
+"Would you like to enter the initial configuration dialog" question: always answer "no".
+
+No question for configuration dialog - device is not empty.
+
+Etiquette is to clear configuration when entering the lab.
+
+
+Password prompts: `cisco` or `class`. If password is incorrect after both speak to Stephen to initiate password recovery.
+
+Firewall lockup: speak to Stephen.
+
+`>` after device name means the device is in user mode. Unable to perform destructive actions.
+
+Privilege Mode:
+- Type `enable` and hit enter to enter privilege mode - this can perform destructive actions
+- Enter password if required (`cisco` or `class`)
+
+Clearing out previous configuration:
+- Enter privilege mode (ensure terminal starts with `#`)
+- Enter `write erase`
+- Message for erasing the nvram filesystem will remove all configuration files
+- Confirm
+- Look at log messages, should see `Erase of nvram: complete`
+- CTRL+R will bring the line back to the point you were writing before the confirmation message, or hit enter to move to a new line
+- This has restored the default configuration
+- Command only necessary for switches: `del vlan.dat`. On a router this will do nothing.
+- Confirm delete action
+- Delete copy in the flash, confirm this as well
+- If an error message is displayed saying the file is not on the flash, ignore (the file was not on flash to begin with)
+- Reboot router or switch - command `reload`
+- Confirm reload. If config is asked to be saved before reload, select "no"
+- @ signs mean switch in reboot message, # signs mean router. ? means that there is a corruption somewhere
