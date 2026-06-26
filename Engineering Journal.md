@@ -9,3 +9,12 @@ Data-Link Layer (Layer 2) can be used for detecting errors, but cannot fix them 
 Network Layer (Layer 3) is responsible for logically addressing ports. If data is being sent to the wrong place, this may be the cause.
 
 Cables cannot bend past 90 degrees, check cable radius if necessary.
+
+Ensure there is a good number of collision domains.
+
+## Debugging OSI Model
+`ping` - tests Network, Data-Link and Physical Layers and partially Transport Layer work as expected.
+
+`ssh`/`telnet (Terminal Emulation)` - tests all layers of the OSI model work as expected.
+
+...or Connect Web Client to a Web Server - tests all layers of the OSI model work as expected.

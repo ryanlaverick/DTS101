@@ -162,3 +162,94 @@ TCP/IP Model
     - PDU: Binary stream of zeros and ones
 
 
+## Network Hardware
+Collision Domains - areas of a network where data on a shared medium could "collide" if simultaneous transmission happened. More collision domains are better - lower likelihood of collisions actually occurring.
+
+In modern technologies collisions only typically occur internally within devices like switches.
+
+Broadcast Domains - areas "between" routers, this is because broadcast transmissions can't cross routers. Routers block broadcast storms (early-form DDoS) by blocking broadcast signals intended to go outside of the router.
+
+### Repeaters (Physical Layer Device)
+Cable lengths have limits in networks before attenuation causes the signals to become too faintto be received reliably (signal dropoff - think about shouting to someone over distance, the further they are the quieter it is)
+-  Maximum reliable distance for UTP is 100m
+
+Repeater can be used to fix this:
+- One input port, one output port.
+- When the signal enters one port, it is cleaned, amplified and retransmitted out of the output port.
+- UTP cable can now have a range of 200m.
+- Replaced by Hubs.
+- Typically wouldn't be installed in modern networks.
+
+### Hubs (Physical Layer Device)
+- Multi-port repeater.
+- Sits inside a single collision domain.
+- Sits inside a single broadcast domain.
+- UTP/STP cabled.
+- Half-duplex.
+- Largely obsolete.
+- Typically wouldn't be installed in modern networks.
+
+### Problems with Hubs and Repeaters
+- Increase the size of the collision domain
+    - More possible collisions = slower segment
+- Increase the size of broadcast domains
+    - Greater risk of broadcast storms
+
+### Bridge (Data-Link Layer Device)
+- Keeps traffic out of collision and broadcast domains.
+- Splits collision domains in two - good for efficiency and reducing possible colliding data.
+- Does not split broadcast domains.
+- "Learns" where traffic is intended to go, speeding up throughput.
+- Can directly replace repeaters as they also clean and amplify signals.
+
+### Switch (Data-Link Layer Device)
+- Replaces Hubs
+- Multi-port bridge
+- Each port connects another network segment
+- Usually full duplex devices
+- Splits collision domains into many smaller ones - great for efficiency. Each port is its own collision domain. Micro-segmentation
+- Does not split broadcast domains - still vulnerable
+- CAM/MAC address table for directing data to specific addresses. When a switch is first turned on this table is empty, so data is transmitted through all ports until it "learns" where the intended destination of traffic is.
+
+### Managed vs Unmanaged Switches
+- Unmanaged
+    - Very low cost
+    - Basic switch operation
+    - No management interface to be programmed (no VLAN support)
+    - Very easy to deploy, just plug it in
+    - Only really suitable for SOHO-style networks
+    - Cheap - £5 and up
+- Managed
+    - More expensive (>£400)
+    - Full management functions - support VLANs etc
+    - Deployed to organisational networks
+
+### Switched Network Issues
+- Work at line speed
+- Micro-segment collision domains
+- Increase network efficiency
+- Can't determine best path for data (router)
+
+### Router (Network Layer Device)
+- Used to be named "gateway"
+- Capable of connecting networks of different types
+- Split collison AND broadcast domains
+- Intelligent devices capable of dest path calculations
+- Can be hardened to make of them as security devices
+- Used extensively for traffic control
+
+### Layer 3 Switch (Network Layer Device)
+- Layer two switch in the same chassis as a router (hybrid router/switch)
+- Effectively a multi-ported router
+- Operate at line speed
+- Generally only ethernet
+- Cheaper than switches
+- Ports configured as routing ports or switching ports
+- Routing via layer 3 switches is much quicker than traditional routers
+
+### Wireless Access Points
+- Allows connection of mobile devices
+- Similar in operation to an ethernet hub
+- Used extensively to provide wireless communications - may be combined with routing hardware to form a wireless router
+- Collisions domains/broadcast domains not divided or increased by these
+- Not very secure - subject to signal interference
