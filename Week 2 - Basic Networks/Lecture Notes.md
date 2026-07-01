@@ -306,7 +306,7 @@ Privilege Mode:
 - Type `enable` and hit enter to enter privilege mode - this can perform destructive actions
 - Enter password if required (`cisco` or `class`)
 
-Clearing out previous configuration:
+### Clearing out previous configuration:
 - Enter privilege mode (ensure terminal starts with `#`)
 - Enter `write erase`
 - Message for erasing the nvram filesystem will remove all configuration files
@@ -321,3 +321,11 @@ Clearing out previous configuration:
 - Reboot router or switch - command `reload`
 - Confirm reload. If config is asked to be saved before reload, select "no"
 - @ signs mean switch in reboot message, # signs mean router. ? means that there is a corruption somewhere
+
+### Setting PC as a Client
+- Use negative port numbers on the orange cables
+- Port switching happens less on University PCs if they are wired in before starting VMWare
+- Open VMWare Workstation Pro
+- Select Windows 10 x64 (Networks) - double click
+- Disable Windows Defender (Settings -> Security Settings -> Firewall & Network Protection -> Turn all off)
+
