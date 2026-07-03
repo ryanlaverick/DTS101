@@ -106,6 +106,8 @@ Slim server uses patch panel connector - see the number on the server and correl
             - Default 2 - AD 2 (Backup)
             - Default 3 - AD 3 (Backup)
 
+- `show ip network brief` when connecting to a live Switch to display current ports, bindings etc
+
 # Configure Router
 - Connect via Cabling
 - Open MobaXTerm
