@@ -328,4 +328,11 @@ Privilege Mode:
 - Open VMWare Workstation Pro
 - Select Windows 10 x64 (Networks) - double click
 - Disable Windows Defender (Settings -> Security Settings -> Firewall & Network Protection -> Turn all off)
-
+- Control Panel
+- Large Icons
+- Network and Sharing Centre
+- Change Adapter Settings
+- Right Click Ethernet0 -> Properties
+- Click TCP/IPv4
+- Properties
+- Fill in modal popup
