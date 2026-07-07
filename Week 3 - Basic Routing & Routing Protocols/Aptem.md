@@ -1,0 +1,11 @@
+I spent this time working on DTS101 - Network Engineering, specifically focusing on routing and routing protocols. We learnt about routing tables (which is how a router "learns" where to send information within a network) and the different routing protocols associated with it. We learnt about Distance Vector protocols and Link-State protocols (different routing protocols used for identifying hosts/destination addresses within a network) and the differences between them, and when both may be best suited to different network types.
+
+We also learnt about static and default routes as well as examples of both Distance Vector, Link-State and Hybrid routing protocols. RIP (Routing Information Protocol), for example, is a Distance Vector protocol that is old but is a common standard on all router hardware platforms. It is typically best used for small home networks as routers running this protocol cannot identify or talk to sibling nodes to expand the network mesh - as this requires less compute power this protocol is much cheaper to run.
+
+OSPF (Open Shortest Path First) on the other hand is an example of a Link-State protocol which requires powerful network hardware, as each node (router) within the network talks to other sibling nodes to understand the overall network topology. Routing tables are shared between nodes via small update packets, and "hello" packets are leveraged to ensure known nodes are still healthy. 
+
+Hybrid Routing Protocol (EIGRP - Enhanced Interior Gateway Routing Protocol) is a mesh of both - it requires less intensive hardware (meaning it is cheaper than running OSPF) but uses the update/"hello" packets from OSPF to ensure that entire routing tables are not constantly re-broadcasted across the network (potentially causing broadcast storms)
+
+We then used this knowledge combined with knowledge gained from week 2 to set up different example networks based on a range of scenarios. Within my team we successfully completed network solution one which uses multi-router communication via crossover cables to allow computers talking to different routers to communicate indirectly through the network.
+
+I have covered the following KSBs: K1, K2, K3, K5, K11, K16, K19, K61, K64, K65, K67, S9, S12, S57, S58, S59, S61, S62, B1, B2, B3, B4, B6, B7, B8
