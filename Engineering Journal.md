@@ -108,7 +108,12 @@ Slim server uses patch panel connector - see the number on the server and correl
 
 - `show ip network brief` when connecting to a live Switch to display current ports, bindings etc
 
-# Configure Router
+# Configure Network
+## Configure Device
+- Identify IP Address of device
+- Compare last octet of each address to bit borrowing table to get Mask (.66 falls within /27 range, for example)
+
+## Configure Router
 - Connect via Cabling
 - Open MobaXTerm
 - Connect like Switch
@@ -116,9 +121,11 @@ Slim server uses patch panel connector - see the number on the server and correl
 - `configure terminal`
 - `hostname R1 <or any other name>`
 - Configure ports
+    - Identify IP address of each port to be bound
+    - Compare last octet of each address to bit borrowing table to get Mask (.66 falls within /27 range, for example)
     - `interface fax/x` (eg `fa0/0`) for 2811
     - `interface gx/x` for 2911
     - `interface gx/x/x` for 4331
-    - `ip address <ip address> <ip address>`
+    - `ip address <ip address> <mask>` - ex `interface fa0/0`, `ip address 192.168.1.137 255.255.255.252`
     - Turn on the port `no shutdown`/`no shut`
     - `exit`
