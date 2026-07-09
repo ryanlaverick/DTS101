@@ -336,3 +336,8 @@ Privilege Mode:
 - Click TCP/IPv4
 - Properties
 - Fill in modal popup
+
+
+
+2911 - Routers
+2960 - Switches
