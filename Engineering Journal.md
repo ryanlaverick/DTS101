@@ -129,3 +129,9 @@ Slim server uses patch panel connector - see the number on the server and correl
     - `ip address <ip address> <mask>` - ex `interface fa0/0`, `ip address 192.168.1.137 255.255.255.252`
     - Turn on the port `no shutdown`/`no shut`
     - `exit`
+- If on Packettracer and connection to a switch is RED - troubleshoot port:
+    - Hover over arrow on each side of the connection to see what port has been configured closest to the device
+    - If trying to connect to 0/1 it may automatically bind to 0/0
+        - To fix this hold click on the end of the connection to change
+        - Click the device
+        - Select the port to plug into
