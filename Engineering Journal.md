@@ -135,3 +135,37 @@ Slim server uses patch panel connector - see the number on the server and correl
         - To fix this hold click on the end of the connection to change
         - Click the device
         - Select the port to plug into
+
+## EIGRP - Allow sibling Switches to talk to eachother
+- Connect to terminal
+- `router eigrp 255`
+- `network <ip>` - `network 192.168.1.0` example for HSRP Default Gateway of 192.168.1.1 - make sure to do this for each domain (`1.0.0.0` for routers running on `1.0.0.x`)
+
+## DHCP
+- `ip dhcp excluded-address <start IP>|[<end IP>]` - make sure to do this for each statically assigned IP address (including those of routers and switches)
+- Always configure DHCP Server *before* connecting it to any other switches or routers
+- `ip dhcp pool <poolname>` - ex `ip dhcp pool fred`
+- `network <network ID/subnet ID> <mask>` - ex `network 10.0.0.0 255.255.255.0`
+- `default-router <default gateway address>` - ex `default router 10.0.0.1`
+- `exit`
+- Test DHCP by connecting to a Client, going into IP Configuration and selecting DHCP
+
+## OSPF
+Wildcard masks - used when setting up OSPF, inversion of ordinary masks
+255.255.255.0 becomes 0.0.0.255
+255.255.255.128 becomes 0.0.0.127
+255.255.255.192 becomes 0.0.0.63
+Convert all 1's to 0's
+Convert all 0's to 1's
+
+Masks are always 0's or odd numbers. Even numbers are not valid and are caused by an incorrect calculation.
+
+DR - Designated Router (primary)
+BDR - Backup Designated Router (secondary)
+Grunts - all others
+
+DR/BDR are elected by routers in a network
+Can be influenced by setting one of these values below so that the desired device becomes DR/BDR:
+- Highest value router ID - specified in dot decimal notation like an IP address when OSPF is configured
+- If no router IDs set, then highest IP address value on the particular router wins. Adding loopback interfaces with higher IP addresses on them can be used to set this up (using /32 mask - 255.255.255.255)
+- Or the highest OSPF priority level set wins (255 - always win, 0 - never win)
