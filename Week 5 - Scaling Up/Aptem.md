@@ -1,0 +1,7 @@
+I spent this time learning about network reliability and redundancy, including strategies to mitigate risk of prolonged outages - this can be achieved using "primary" and "backup" routers that take over from one another when the other goes down. This ensures that a network can remain operational even in the instance that physical connection is severed or lost (such as in the instance of roadworks severing a cable between two sites)
+
+Switches can be arranged in "switch blocks" which are connected together using physical cables to create an etherchannel - this is a redundancy strategy which, if a switch is performing slowly or goes offline entirely, load-balances network traffic across other switches in the stack ensuring that connectivity is not lost, and performance is maintained.
+
+We also learnt about automatic IP addressing using DHCP for IPv4, and SLAAC for IPv6. Auotmatic IP addressing means that network technicians do not have to manually assign IPs for potentially thousands of devices in large-scale networks, as the protocol employed will handle this automatically. We configured a DHCP server within an example network to hand out a number of IPs, whilst also learning about the configuration required to ensure DHCP does not hand out "reserved" IP addresses (these addresses are static addresses of routers and other network devices that must be routable at a fixed location)
+
+I have covered the following KSBs: K1, K2, K3, K5, K11, K16, K19, K61, K64, K65, K67, S9, S12, S57, S58, S59, S61, S62, B1, B2, B3, B4, B6, B7, B8
