@@ -157,4 +157,128 @@ Example:
 - Repeat for other devices
 
 
-# EtherChannel
+# EtherChannel (PAgP + LACP)
+- Equipment:
+    - Switches: 2960
+    - PCs
+
+![alt text](etherchannel-setup.png)
+
+Configuration
+- Create switches and cable up PCs - DO NOT ADD CROSSOVER CABLES BETWEEN SWITCHES
+- Use configuration defined for each PC for setting IP config
+- Make switches pingable as no routers on the network:
+    - `interface VLAN 1`
+    - `ip address <address> <mask>` - for S1 this is `ip address 10.0.0.5 255.255.255.0`. You can find the IP used by using the same IP as the connected PC and take the last digit (`5` for S1)
+    - `no shut`
+    - `exit`
+    - `ip default-gateway <ip address>` - eg `ip default-gateway 10.0.0.254` this is the DG specified on the PCs within the diagram above
+    - Repeat for all switches within the network
+- Set up EtherChannel trunks:
+    - LACP (Passive)
+        - `interface range <port-range>` - for diagram above when configuring S1 this would be `fa0/19-20` as defined by the crossover cables, ports 19 and 20 are defined as using LACP Passive
+        - `channel-group 3 mode passive`
+        - `exit`
+        - Use EtherChannel as trunk:
+            - `interface port-channel 3`
+            - `switchport mode trunk`
+            - `exit`
+    - LACP
+        - `interface range <port-range>` - for diagram above when configuring S1 this would be `fa0/21-22`
+        - `channel-group 1 mode active`
+        - `exit`
+        - Use EtherChannel as trunk:
+            - `interface port-channel 1`
+            - `switchport mode trunk`
+            - `exit`
+    - PAgP
+        - `interface range <port-range>` - for diagram above when configuring S2 this would be `fa0/23-24`
+        - `channel-group 2 mode desirable`
+        - `exit`
+        - Use EtherChannel as trunk:
+            - `interface port-channel 2`
+            - `switchport mode trunk`
+            - `exit`
+    - These commands need to be ran on both sides of the connection
+    - An error may be encountered when setting these up where it says the method is not enabled on the port, this is fine and resolves itself if/when the switches are connected.
+    - Ports may take quite a while to stabilise so give them chance to turn green, they may go up and down between green and red
+    - Some may also appear as red but will work fine, test connectivity to ensure network works as expected
+
+# Loopback Interfaces
+- Equipment:
+    - Switches: 2960 or 2950 series
+
+Configuration:
+- `interface <port>` - eg `interface Loopback0` or `interface lo0`
+- `ip address <address> <mask>` - eg `ip address 9.9.9.9 255.255.255.255`
+- `no shutdown`
+- `exit`
+- Verify with `show ip interface brief` (or `do show ip interface brief`)
+
+# EIGRP
+## Basic
+Configure EIGRP on Routers:
+- Work through each router individually
+- Use the IP address and subnet mask assigned to each interface to determine its network address
+    - Examples:
+        - `192.168.10.1 255.255.255.0` → `192.168.10.0`
+        - `192.168.20.1 255.255.255.0` → `192.168.20.0`
+        - `10.0.0.1 255.255.255.252` → `10.0.0.0`
+- Example R1 from diagram above
+    - `Fa0/0` → `192.168.10.1/24` → `192.168.10.0`
+    - `Fa0/1` → `10.0.0.1/30` → `10.0.0.0`
+    - `Fa1/0` → `192.168.50.1/24` → `192.168.50.0`
+- `enable`
+- `configure terminal`
+- `router eigrp 1`
+- Add each required network:
+    - `network <ip address>` - eg `network 192.168.10.0`
+    - Repeat for each network that should participate in EIGRP
+- `exit`
+
+## Wildcard Masks
+- `network <network address> <wildcard mask>` - eg `network 192.168.10.0 0.0.0.255`
+- Wildcard masks are the inverse of the subnet mask:
+    - `/24` (`255.255.255.0`) becomes `0.0.0.255`
+    - `/30` (`255.255.255.252`) becomes `0.0.0.3`
+
+## Debugging EIGRP
+- Check configured EIGRP networks
+    - `show running-config`
+    - `show ip protocols`
+- Check interfaces + IP addresses
+    - `show ip interface brief`
+- Check EIGRP neighbors
+    - `show ip eigrp neighbors`
+- Check routes learned via EIGRP
+    - `show ip route`
+    - Appear with D in the route table
+- Check topology
+    - `show ip eigrp topology`
+
+# HSRP
+- Equipment:
+    - Routers: 2621XM, 1841 or 2811 series
+    - Switches: 2960 or 2950 series
+    - PCs
+- Cable up network from diagram, always do crossover cables for LACP/PAgP after all config has been done on the switches to prevent switch death due to bad config
+
+![alt text](etherchannel-with-hsrp.png)
+
+- Configure EIGRP on each Router that needs to participate
+
+Configure Secondary Router:
+- `enable`
+- `configure terminal`
+- `interface <port>` - this is the port that is connected to the switch which is running LACP/PAgP - in the above diagram this is `g0/0`
+- `standby 1 ip <ip address>` - this will be the HSRP virtual address (also the same as the default gateway) defined in the diagram above - this is `192.168.1.1`
+- Warning may be displayed for address, ignore this and wait for Speak/Standby/Active notification for the port
+
+Configure Primary Router:
+- `enable`
+- `configure terminal`
+- `interface <port>` - this is the port that is connected to the switch which is running LACP/PAgP - in the above diagram this is `g0/0`
+- `standby 1 ip <ip address>` - this will be the HSRP virtual address (also the same as the default gateway) defined in the diagram above - this is `192.168.1.1`
+- `standby 1 priority <priority>` - default priority is 100, so we set this to `150` to override the secondary
+- `standby 1 preempt`
+- Warning may be displayed for address, ignore this and continue on. Notification of port changing should pop up after the `standby 1 preempt` command is ran
