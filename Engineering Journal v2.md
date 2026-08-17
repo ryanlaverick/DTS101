@@ -1,38 +1,81 @@
 # Subnet Table
-Shorthand    Mask                Wildcard                Number Hosts        Bits to Borrow
-/32          255.255.255.255     0.0.0.0                 1                   N/A
-/31          255.255.255.254     0.0.0.1                 2                   1
-/30          255.255.255.252     0.0.0.3                 4                   2
-/29          255.255.255.248     0.0.0.7                 8                   3
-/28          255.255.255.240     0.0.0.15                16                  4
-/27          255.255.255.224     0.0.0.31                32                  5
-/26          255.255.255.192     0.0.0.63                64                  6
-/25          255.255.255.128     0.0.0.127               128                 7
-/24          255.255.255.0       0.0.0.255               256                 8
-/23          255.255.254.0       0.0.1.255               512                 9
-/22          255.255.252.0       0.0.3.255               1,024               10 
-/21          255.255.248.0       0.0.7.255               2,048               11
-/20          255.255.240.0       0.0.15.255              4,096               12
-/19          255.255.224.0       0.0.31.255              8,192               13
-/18          255.255.192.0       0.0.63.255              16,384              14
-/17          255.255.128         0.0.127.255             32,768              15
-/16          255.255.0.0         0.0.255.255             65,536              16
-/15          255.254.0.0         0.1.255.255             131,072             17
-/14          255.252.0.0         0.3.255.255             262,144             18
-/13          255.248.0.0         0.7.255.255             524,288             19
-/12          255.240.0.0         0.15.255.255            1,048,576           20
-/11          255.224.0.0         0.31.255.255            2,097,152           21
-/10          255.192.0.0         0.63.255.255            4,194,304           22
-/9           255.128.0.0         0.127.255.255           8,388,608           23
-/8           255.0.0.0           0.255.255.255           16,777,216          24
-/7           254.0.0.0           1.255.255.255           33,554,432          N/A         
-/6           252.0.0.0           3.255.255.255           67,108,864          N/A         
-/5           248.0.0.0           7.255.255.255           134,217,728         N/A          
-/4           240.0.0.0           15.255.255.255          268,435,456         N/A          
-/3           224.0.0.0           31.255.255.255          536,870,912         N/A          
-/2           192.0.0.0           63.255.255.255          1,073,741,824       N/A            
-/1           128.0.0.0           127.255.255.255         2,147,483,648       N/A            
-/0           0.0.0.0             255.255.255.255         4,294,967,296       N/A             
+Shorthand    Mask                Wildcard                Number Addresses        Network Bits
+/32          255.255.255.255     0.0.0.0                 1                       N/A
+/31          255.255.255.254     0.0.0.1                 2                       1
+/30          255.255.255.252     0.0.0.3                 4                       2
+/29          255.255.255.248     0.0.0.7                 8                       3
+/28          255.255.255.240     0.0.0.15                16                      4
+/27          255.255.255.224     0.0.0.31                32                      5
+/26          255.255.255.192     0.0.0.63                64                      6
+/25          255.255.255.128     0.0.0.127               128                     7
+/24          255.255.255.0       0.0.0.255               256                     8
+/23          255.255.254.0       0.0.1.255               512                     9
+/22          255.255.252.0       0.0.3.255               1,024                   10 
+/21          255.255.248.0       0.0.7.255               2,048                   11
+/20          255.255.240.0       0.0.15.255              4,096                   12
+/19          255.255.224.0       0.0.31.255              8,192                   13
+/18          255.255.192.0       0.0.63.255              16,384                  14
+/17          255.255.128.0       0.0.127.255             32,768                  15
+/16          255.255.0.0         0.0.255.255             65,536                  16
+/15          255.254.0.0         0.1.255.255             131,072                 17
+/14          255.252.0.0         0.3.255.255             262,144                 18
+/13          255.248.0.0         0.7.255.255             524,288                 19
+/12          255.240.0.0         0.15.255.255            1,048,576               20
+/11          255.224.0.0         0.31.255.255            2,097,152               21
+/10          255.192.0.0         0.63.255.255            4,194,304               22
+/9           255.128.0.0         0.127.255.255           8,388,608               23
+/8           255.0.0.0           0.255.255.255           16,777,216              24
+/7           254.0.0.0           1.255.255.255           33,554,432              N/A         
+/6           252.0.0.0           3.255.255.255           67,108,864              N/A         
+/5           248.0.0.0           7.255.255.255           134,217,728             N/A          
+/4           240.0.0.0           15.255.255.255          268,435,456             N/A          
+/3           224.0.0.0           31.255.255.255          536,870,912             N/A          
+/2           192.0.0.0           63.255.255.255          1,073,741,824           N/A            
+/1           128.0.0.0           127.255.255.255         2,147,483,648           N/A            
+/0           0.0.0.0             255.255.255.255         4,294,967,296           N/A             
+
+## Identifying Masks without Shorthand
+- If the prefix/mask is known, calculate the block size and determine which range contains the host address. The IP address alone does not identify the subnet mask.
+
+# Basic Router Configuration
+## Clearing out previous configuration on Routers & Switches:
+Configuration:
+- Enter privilege mode (ensure terminal starts with `#`)
+- Enter `write erase`
+- Message for erasing the nvram filesystem will remove all configuration files
+- Confirm
+- Look at log messages, should see `Erase of nvram: complete`
+- CTRL+R will bring the line back to the point you were writing before the confirmation message, or hit enter to move to a new line
+- This has restored the default configuration
+- Command only necessary for switches: `del vlan.dat`. On a router this will do nothing.
+- Confirm delete action
+- Delete copy in the flash, confirm this as well
+- If an error message is displayed saying the file is not on the flash, ignore (the file was not on flash to begin with)
+- Reboot router or switch - command `reload`
+- Confirm reload. If config is asked to be saved before reload, select "no"
+- @ signs mean switch in reboot message, # signs mean router. ? means that there is a corruption somewhere
+
+Configuration:
+- Connect via Cabling
+- Open MobaXTerm
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- Configure ports
+    - Identify IP address of each port to be bound
+    - Compare last octet of each address to bit borrowing table to get Mask (.66 falls within /27 range, for example)
+    - `interface fax/x` (eg `fa0/0`) for 2811
+    - `interface gx/x` for 2911
+    - `interface gx/x/x` for 4331
+    - `ip address <ip address> <mask>` - ex `interface fa0/0`, `ip address 192.168.1.137 255.255.255.252`
+    - Turn on the port `no shutdown`/`no shut`
+    - `exit`
+- If on Packettracer and connection to a switch is RED - troubleshoot port:
+    - Hover over arrow on each side of the connection to see what port has been configured closest to the device
+    - If trying to connect to 0/1 it may automatically bind to 0/0
+        - To fix this hold click on the end of the connection to change
+        - Click the device
+        - Select the port to plug into
 
 # VLANs
 ## Legacy Inter-VLAN Routing
@@ -67,7 +110,7 @@ Debug using `show vlan` (or `do show vlan` if in privileged mode) - you should s
 - `hostname <name>` - eg `hostname r1`
 - configure receiving ports (on diagram this is fa0/0, fa0/1)
 - `interface <port>` - eg `interface fa0/0`
-- `ip address <ip address> <mask address>` - for VLAN10 in this diagram this would be `ip address 192.168.10.1 255.255.255.0` - you cannot use `.0` as an address here as it is too wide of a range. Look for green text to determine IP address and use the modifier next to the VLAN name (`.1`) - *NOTE* this becomes the gateway for any client attached to this VLAN
+- `ip address <ip address> <mask address>` - for VLAN10 in this diagram this would be `ip address 192.168.10.1 255.255.255.0` - the `.0` address is the network address for a `/24` subnet and is therefore not normally assignable to a host interface. The router interface is typically assigned a usable address such as `.1`. Look for green text to determine IP address and use the modifier next to the VLAN name (`.1`) - *NOTE* this becomes the gateway for any client attached to this VLAN
 - `no shut`
 - configure other ports by repeating the above steps
 
@@ -171,8 +214,8 @@ Example:
     - `switchport access vlan <number>` - eg `switchport access vlan 10`
     - `no shut`
     - `exit`
-- No trunk ports required
-- RIP needs configuring for R1 and R2
+- Configure trunk ports if required
+- EIGRP needs configuring for R1 and R2
 - `ip routing` - enable routing functions of L3 Switch
 - Assign the four VLANs IP addresses (use `.1` modifier to prevent IP clashing)
     - `interface VLAN <number>` - eg `interface VLAN 10` message may appear saying state is up
@@ -298,23 +341,195 @@ Configure EIGRP on Routers:
     - Switches: 2960 or 2950 series
     - PCs
 - Cable up network from diagram, always do crossover cables for LACP/PAgP after all config has been done on the switches to prevent switch death due to bad config
+- Provides first-hop redundancy
+- Virtual Ip becomes default gateway for clients (PCs attached)
 
 ![alt text](etherchannel-with-hsrp.png)
 
 - Configure EIGRP on each Router that needs to participate
+- Configure ports on Routers using Ports/IP Addresses Attached
+- Configure ports on Switches to accept traffic from Routers
 
-Configure Secondary Router:
+Configure Standby (Secondary) Router:
 - `enable`
 - `configure terminal`
 - `interface <port>` - this is the port that is connected to the switch which is running LACP/PAgP - in the above diagram this is `g0/0`
 - `standby 1 ip <ip address>` - this will be the HSRP virtual address (also the same as the default gateway) defined in the diagram above - this is `192.168.1.1`
-- Warning may be displayed for address, ignore this and wait for Speak/Standby/Active notification for the port
+- Warning may be displayed for address, ignore this and wait for Speak/Standby/Active notification for the port (or run `show standby` to see if it is configured)
 
-Configure Primary Router:
+Configure Active (Primary) Router:
 - `enable`
 - `configure terminal`
 - `interface <port>` - this is the port that is connected to the switch which is running LACP/PAgP - in the above diagram this is `g0/0`
 - `standby 1 ip <ip address>` - this will be the HSRP virtual address (also the same as the default gateway) defined in the diagram above - this is `192.168.1.1`
 - `standby 1 priority <priority>` - default priority is 100, so we set this to `150` to override the secondary
 - `standby 1 preempt`
-- Warning may be displayed for address, ignore this and continue on. Notification of port changing should pop up after the `standby 1 preempt` command is ran
+- `exit` - important always run this
+- Warning may be displayed for address, ignore this and continue on. Notification of port changing should pop up after the `exit` command is ran
+
+## DHCP
+- Equipment:
+    - Routers: 2621XM, 1841 or 2811 series
+    - Switches: 2960 or 2950 series
+    - PCs
+
+Configuration:
+- `ip dhcp excluded-address <start IP>|[<end IP>]` - make sure to do this for each statically assigned IP address (including those of routers and switches)
+- Always configure DHCP Server *before* connecting it to any other switches or routers
+- `ip dhcp pool <poolname>` - ex `ip dhcp pool fred`
+- `network <network ID/subnet ID> <mask>` - ex `network 10.0.0.0 255.255.255.0`
+- `default-router <default gateway address>` - ex `default router 10.0.0.1`
+- `exit`
+- Test DHCP by connecting to a Client, going into IP Configuration and selecting DHCP
+
+# Default Routes
+- AD is "administrative distance" - AD is used to determine the preference between routes to the same destination learned from different sources. Lower AD is preferred.
+- Only one should exist with an AD of 1
+- Backup static routes can be configured using a higher AD than the primary route.
+- These are called floating static routes.
+- The AD is manually configured; it is not automatically increased.
+
+- `Connected` route has a default AD of `0`
+- `Static` route has a default AD of `1`
+- `EIGRP` route has a default AD of `90`
+- `OSPF` route has a default AD of `110`
+- `RIP` route has a default AD of `120`
+
+Configuration:
+- `enable`
+- `configure terminal`
+- `ip route <ip> <mask> <next-hop> <?AD>` - AD does not have to be provided
+- Example may be `ip route 0.0.0.0 0.0.0.0 192.168.1.65` which would send destinations for which no more-specific route exists to `192.168.1.65`
+- Example with AD may be `ip route 0.0.0.0 0.0.0.0 192.168.1.65 10` and `ip route 0.0.0.0 0.0.0.0 192.168.1.132 20` which would configure two default routes, using `.65` first as it has the lower AD. `.132` would be then used if `.65` is no longer available.
+
+Debugging:
+- `show ip route` to display ip routing table (or `do show ip route` when in privileged mode)
+- Example `S* 0.0.0.0/0 [10/0] via 192.168.1.65`
+- `S` denotes a static route
+- `*` denotes a candidate default route
+- `10` denotes the AD
+- `0` denotes the metric
+- `via 192.168.1.65` denotes the next-hop address
+
+# Debugging
+## Cables and Connectors
+9-pin DB9 connector -- check if the shield pin is connected correctly.
+
+## CLI Commands
+### Interfaces
+- `show ip interface brief`/`do show ip interface brief` shows all configured ports and there statuses (assigned/unassigned, up/down etc)
+- `show interfaces`/`do show interfaces`
+- `show running-config`/`do show running-config`
+
+### VLAN
+- `show vlan brief`/`do show vlan brief`
+- `show interfaces trunk`/`do show interfaces trunk`
+
+### Routing
+- `show ip route`/`do show ip route` shows all configured routes in the devices routing table:
+    - Example `S* 0.0.0.0/0 [10/0] via 192.168.1.65`
+    - `S` denotes a static route
+    - `*` denotes a candidate default route
+    - `10` denotes the AD
+    - `0` denotes the metric
+    - `via 192.168.1.65` denotes the next-hop address
+- `show ip route connected`/`do show ip route connected`
+- `show ip route static`/`do show ip route static`
+- `show ip route eigrp`/`do show ip route eigrp`
+
+### EIGRP
+- `show ip eigrp neighbors`/`do show ip eigrp neighbors`
+- `show ip eigrp topology`/`do show ip eigrp topology`
+- Check configured EIGRP networks
+        - `show running-config`
+        - `show ip protocols`
+    - Check interfaces + IP addresses
+        - `show ip interface brief`
+    - Check routes learned via EIGRP
+        - `show ip route`
+        - Appear with D in the route table
+    - Check topology
+        - `show ip eigrp topology`
+
+### HSRP
+- `show standby`/`do show standby` shows all HSRP/standby configuration
+
+### DHCP
+- `show ip dhcp binding`/`do show dhcp binding` shows DHCP configuration
+- `show ip dhcp pool`/`do show dhcp pool` shows which DHCP pool the devices address is coming from
+
+### EtherChannel
+- `show etherchannel summary`/`do show etherchannel summary`
+
+### Misc (Connectivity etc.)
+- `ping <destination>`
+- `tracert <destination>`
+- `show run`/`do show run` shows all configured ports (with indepth configuration)/other information about the device's network capability
+- `show vlan`/`do show vlan` shows all configured VLAN info
+    
+
+## Copying Configurations
+Console into each device
+Pull the config:
+    - `show run`
+    - Spacebar through
+    - Go to earliest command (eg hostname) - make sure to set unique hostnames
+    - Highlight display
+    - CTRL+C
+    - Paste into Notepad
+    - Remove any non-user commands (!-prefixed lines) or unused features
+    - Put "useful" commands back in (`enable`, `configure terminal` etc)
+    - Use duplex auto - `no shutdown` should be in their place
+    - Launch Simulator
+    - Match Model (use same hardware in simulator as you're using physically)
+    - Double click
+    - Enter command line
+    - Wait for CLI to boot
+    - Add hostname for example `R1` for a router
+    - Run through basic setup
+    - Paste config
+    - Fix issue(s) and test
+    - Copy config from simulator using same method as above
+    - Paste onto live server
+
+## Connecting to Devices
+- Unable to reach host destination
+    - Check if ports have switched from odds -> evens
+    - Change Network Adapter -> VM -> Settings -> Network Adapter -> Change `VMnet0` to `VMnet1` or vice versa
+- Request Timed Out
+    - Is Defender enabled on the target machine?
+
+## Debugging OSI Model
+- Check from the lowest practical layer upwards:
+    - Physical:
+        - Check cables, interfaces, link lights and device connections.
+        - `show ip interface brief`
+    - Data Link:
+        - Check VLAN membership, trunks, EtherChannel and MAC learning.
+        - `show vlan`
+        - `show interfaces trunk`
+        - `show etherchannel summary`
+        - `show mac address-table`
+    - Network:
+        - Check IP addresses, subnet masks and routing.
+        - `show ip interface brief`
+        - `show ip route`
+        - `ping <destination>`
+        - `traceroute <destination>`
+    - Transport/Application:
+        - Test the required service, such as SSH, HTTP or another TCP/UDP service.
+
+
+
+
+
+
+# TODO
+Static Routes
+IPv4 Subnetting
+STP
+Port Security
+ACL
+NAT/PAT
+SSH
+Basic Switch Management
