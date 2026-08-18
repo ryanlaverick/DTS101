@@ -1,38 +1,40 @@
 # Subnet Table
-Shorthand    Mask                Wildcard                Number Addresses        Network Bits
-/32          255.255.255.255     0.0.0.0                 1                       N/A
-/31          255.255.255.254     0.0.0.1                 2                       1
-/30          255.255.255.252     0.0.0.3                 4                       2
-/29          255.255.255.248     0.0.0.7                 8                       3
-/28          255.255.255.240     0.0.0.15                16                      4
-/27          255.255.255.224     0.0.0.31                32                      5
-/26          255.255.255.192     0.0.0.63                64                      6
-/25          255.255.255.128     0.0.0.127               128                     7
-/24          255.255.255.0       0.0.0.255               256                     8
-/23          255.255.254.0       0.0.1.255               512                     9
-/22          255.255.252.0       0.0.3.255               1,024                   10 
-/21          255.255.248.0       0.0.7.255               2,048                   11
-/20          255.255.240.0       0.0.15.255              4,096                   12
-/19          255.255.224.0       0.0.31.255              8,192                   13
-/18          255.255.192.0       0.0.63.255              16,384                  14
-/17          255.255.128.0       0.0.127.255             32,768                  15
-/16          255.255.0.0         0.0.255.255             65,536                  16
-/15          255.254.0.0         0.1.255.255             131,072                 17
-/14          255.252.0.0         0.3.255.255             262,144                 18
-/13          255.248.0.0         0.7.255.255             524,288                 19
-/12          255.240.0.0         0.15.255.255            1,048,576               20
-/11          255.224.0.0         0.31.255.255            2,097,152               21
-/10          255.192.0.0         0.63.255.255            4,194,304               22
-/9           255.128.0.0         0.127.255.255           8,388,608               23
-/8           255.0.0.0           0.255.255.255           16,777,216              24
-/7           254.0.0.0           1.255.255.255           33,554,432              N/A         
-/6           252.0.0.0           3.255.255.255           67,108,864              N/A         
-/5           248.0.0.0           7.255.255.255           134,217,728             N/A          
-/4           240.0.0.0           15.255.255.255          268,435,456             N/A          
-/3           224.0.0.0           31.255.255.255          536,870,912             N/A          
-/2           192.0.0.0           63.255.255.255          1,073,741,824           N/A            
-/1           128.0.0.0           127.255.255.255         2,147,483,648           N/A            
-/0           0.0.0.0             255.255.255.255         4,294,967,296           N/A             
+| Shorthand | Mask            | Wildcard        | Number Addresses | Network Bits |
+| --------- | --------------- | --------------- | ---------------: | -----------: |
+| /32       | 255.255.255.255 | 0.0.0.0         |                1 |          N/A |
+| /31       | 255.255.255.254 | 0.0.0.1         |                2 |            1 |
+| /30       | 255.255.255.252 | 0.0.0.3         |                4 |            2 |
+| /29       | 255.255.255.248 | 0.0.0.7         |                8 |            3 |
+| /28       | 255.255.255.240 | 0.0.0.15        |               16 |            4 |
+| /27       | 255.255.255.224 | 0.0.0.31        |               32 |            5 |
+| /26       | 255.255.255.192 | 0.0.0.63        |               64 |            6 |
+| /25       | 255.255.255.128 | 0.0.0.127       |              128 |            7 |
+| /24       | 255.255.255.0   | 0.0.0.255       |              256 |            8 |
+| /23       | 255.255.254.0   | 0.0.1.255       |              512 |            9 |
+| /22       | 255.255.252.0   | 0.0.3.255       |            1,024 |           10 |
+| /21       | 255.255.248.0   | 0.0.7.255       |            2,048 |           11 |
+| /20       | 255.255.240.0   | 0.0.15.255      |            4,096 |           12 |
+| /19       | 255.255.224.0   | 0.0.31.255      |            8,192 |           13 |
+| /18       | 255.255.192.0   | 0.0.63.255      |           16,384 |           14 |
+| /17       | 255.255.128.0   | 0.0.127.255     |           32,768 |           15 |
+| /16       | 255.255.0.0     | 0.0.255.255     |           65,536 |           16 |
+| /15       | 255.254.0.0     | 0.1.255.255     |          131,072 |           17 |
+| /14       | 255.252.0.0     | 0.3.255.255     |          262,144 |           18 |
+| /13       | 255.248.0.0     | 0.7.255.255     |          524,288 |           19 |
+| /12       | 255.240.0.0     | 0.15.255.255    |        1,048,576 |           20 |
+| /11       | 255.224.0.0     | 0.31.255.255    |        2,097,152 |           21 |
+| /10       | 255.192.0.0     | 0.63.255.255    |        4,194,304 |           22 |
+| /9        | 255.128.0.0     | 0.127.255.255   |        8,388,608 |           23 |
+| /8        | 255.0.0.0       | 0.255.255.255   |       16,777,216 |           24 |
+| /7        | 254.0.0.0       | 1.255.255.255   |       33,554,432 |          N/A |
+| /6        | 252.0.0.0       | 3.255.255.255   |       67,108,864 |          N/A |
+| /5        | 248.0.0.0       | 7.255.255.255   |      134,217,728 |          N/A |
+| /4        | 240.0.0.0       | 15.255.255.255  |      268,435,456 |          N/A |
+| /3        | 224.0.0.0       | 31.255.255.255  |      536,870,912 |          N/A |
+| /2        | 192.0.0.0       | 63.255.255.255  |    1,073,741,824 |          N/A |
+| /1        | 128.0.0.0       | 127.255.255.255 |    2,147,483,648 |          N/A |
+| /0        | 0.0.0.0         | 255.255.255.255 |    4,294,967,296 |          N/A |
+           
 
 ## Identifying Masks without Shorthand
 - If the prefix/mask is known, calculate the block size and determine which range contains the host address. The IP address alone does not identify the subnet mask.
@@ -315,13 +317,13 @@ Configure EIGRP on Routers:
     - Repeat for each network that should participate in EIGRP
 - `exit`
 
-## Wildcard Masks
+## Wildcard Masks
 - `network <network address> <wildcard mask>` - eg `network 192.168.10.0 0.0.0.255`
 - Wildcard masks are the inverse of the subnet mask:
     - `/24` (`255.255.255.0`) becomes `0.0.0.255`
     - `/30` (`255.255.255.252`) becomes `0.0.0.3`
 
-## Debugging EIGRP
+## Debugging EIGRP
 - Check configured EIGRP networks
     - `show running-config`
     - `show ip protocols`
@@ -367,7 +369,7 @@ Configure Active (Primary) Router:
 - `exit` - important always run this
 - Warning may be displayed for address, ignore this and continue on. Notification of port changing should pop up after the `exit` command is ran
 
-## DHCP
+## DHCP
 - Equipment:
     - Routers: 2621XM, 1841 or 2811 series
     - Switches: 2960 or 2950 series
@@ -382,7 +384,7 @@ Configuration:
 - `exit`
 - Test DHCP by connecting to a Client, going into IP Configuration and selecting DHCP
 
-# Default Routes
+# Default Routes
 - AD is "administrative distance" - AD is used to determine the preference between routes to the same destination learned from different sources. Lower AD is preferred.
 - Only one should exist with an AD of 1
 - Backup static routes can be configured using a higher AD than the primary route.
@@ -437,7 +439,7 @@ Debugging:
 - `show ip route static`/`do show ip route static`
 - `show ip route eigrp`/`do show ip route eigrp`
 
-### EIGRP
+### EIGRP
 - `show ip eigrp neighbors`/`do show ip eigrp neighbors`
 - `show ip eigrp topology`/`do show ip eigrp topology`
 - Check configured EIGRP networks
@@ -521,8 +523,15 @@ Pull the config:
 
 
 
+# OSPF
+Equipment:
+- Routers: 1841 or 2811 series
+- Switches: 2950 or 2960 series
+- PCs
 
+![alt text](ospf-ipv4.png)
 
+Configuration:
 
 # TODO
 Static Routes
