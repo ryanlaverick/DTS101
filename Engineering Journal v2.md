@@ -141,15 +141,16 @@ Example:
 - `configure terminal`
 - `hostname <name>` - eg `hostname s1`
 - `vlan <number>` - eg `vlan 10`
-- `name <name` - eg `name Sales`
-- configure other VLANs if required
-- `interface range port-port` - eg `interface range fa0/1-12`
+- `name <name>` - eg `name Sales`
+- Configure other VLANs if required
+- `interface range port-port` - eg `interface range fa0/1-12`, this will usually be noted on the diagram. If not, use whatever port ranges make sense (make sure you don't overlap with trunk ports)
 - `switchport mode access`
 - `switchport access vlan <number>` - eg `switchport access vlan 10`
 - `no shut`
 - `exit`
+- Configure other port ranges if required
 - Configure trunk port
-    - `interface port` - in this example the trunk port to the router is `interface fa0/1`
+    - `interface <port>` - in this example the trunk port to the router is `interface fa0/1`
     - `switchport trunk encapsulation dot1q` - only required for layer 3 switches
     - `switchport mode trunk`
     - `exit`
@@ -160,9 +161,10 @@ Example:
 - `configure terminal`
 - `hostname <name>` - eg `hostname r1`
 - Configure sub-interfaces
-- `interface port/.vlan_number` - in this example the first sub-interface we configure is `interface fa0/0.10`
+- `interface <port>/.<vlan_number>` - in this example the first sub-interface we configure is `interface fa0/0.10`. Port will always be the trunk port noted on the diagram
 - `encapsulation dot1q vlan_number` - `encapsulation dot1q 10`
-- `ip address <ip address> <mask address>` - one address per sub-interface which are defined in green on the diagram - in the above example `192.168.10`, `192.168.20`, `192.168.30` - the last octet is set to `.1` and will be the gateway address for any PC attached to the VLAN. In the above diagram the full addresses are `192.168.10.1`, `192.168.20.1`, and `192.168.30.1`
+- IPv4: `ip address <ip address> <mask address>` - one address per sub-interface which are defined in green on the diagram - in the above example `192.168.10`, `192.168.20`, `192.168.30` - the last octet is set to `.1` and will be the gateway address for any PC attached to the VLAN. In the above diagram the full addresses are `192.168.10.1`, `192.168.20.1`, and `192.168.30.1`
+- IPv6: `ipv6 address <address>/<shorthand mask>` - one address per sub-interface which are defined in green on the diagram (sometimes next to the IPv4 address). Make sure to set the last character to `1` in the same way we do for IPv4. `FC40::/64` becomes `FC40::1/64`, for example
 - `exit`
 - Repeat above steps for each sub-interface that needs to be defined
 - Configure the receiving end of the trunk port
@@ -300,21 +302,23 @@ Configuration:
 ## Basic
 Configure EIGRP on Routers:
 - Work through each router individually
-- Use the IP address and subnet mask assigned to each interface to determine its network address
+- Use the IP address and subnet mask assigned to each interface to determine its network address and wildcard mask
     - Examples:
-        - `192.168.10.1 255.255.255.0` → `192.168.10.0`
-        - `192.168.20.1 255.255.255.0` → `192.168.20.0`
-        - `10.0.0.1 255.255.255.252` → `10.0.0.0`
+        - `192.168.10.1/24` becomes `192.168.10.0 0.0.0.255` (use `Wildcard Mask` column from subnet mask table)
+        - `10.0.0.1/30` becomes `10.0.0.0 0.0.0.3`
 - Example R1 from diagram above
-    - `Fa0/0` → `192.168.10.1/24` → `192.168.10.0`
-    - `Fa0/1` → `10.0.0.1/30` → `10.0.0.0`
-    - `Fa1/0` → `192.168.50.1/24` → `192.168.50.0`
+    - `Fa0/0` → `192.168.10.1/24` → `network 192.168.10.0 0.0.0.255`
+    - `Fa0/1` → `10.0.0.1/30` → `network 10.0.0.0 0.0.0.3`
+    - `Fa1/0` → `192.168.50.1/24` → `network 192.168.50.0 0.0.0.255`
+- If there is a switch connected to the router which has VLANs, make sure to advertise each VLAN route as well (`192.168.10.0 0.0.0.255`, `192.168.20.0 0.0.0.255` etc)
 - `enable`
 - `configure terminal`
 - `router eigrp 1`
 - Add each required network:
     - `network <ip address>` - eg `network 192.168.10.0`
     - Repeat for each network that should participate in EIGRP
+    - Ensure to advertise the network address for VLANs if in "router-on-a-stick" configuration
+        - This may be `192.168.10.0` for a VLAN where a PC has an address of `192.168.10.10` and the VLAN runs on `192.168.10.1`
 - `exit`
 
 ## Wildcard Masks
@@ -468,6 +472,9 @@ Debugging:
 - `tracert <destination>`
 - `show run`/`do show run` shows all configured ports (with indepth configuration)/other information about the device's network capability
 - `show vlan`/`do show vlan` shows all configured VLAN info
+
+## OSPF
+- `show ip ospf neighbors`/`do show ip ospf neighbors` shows OSPF configuration, if a router is DR/BDR/GRUNT
     
 
 ## Copying Configurations
@@ -524,14 +531,121 @@ Pull the config:
 
 
 # OSPF
-Equipment:
-- Routers: 1841 or 2811 series
-- Switches: 2950 or 2960 series
-- PCs
+- Equipment:
+    - Routers: 1841 or 2811 series
+    - Switches: 2950 or 2960 series
+    - PCs
 
 ![alt text](ospf-ipv4.png)
 
+## IPv4
 Configuration:
+- `no router eigrp 1` - disable EIGRP if required
+- `router ospf 1` - enable OSPF
+- Identify each network that needs to be advertised - look for direct connections to the router
+- If a switch connected to the router has VLANs, these need adding as well
+- `network <address> <wildcard> area <area>` - area will be `0` if using single-area OSPF
+- Repeat above step for each network that needs to be advertised. This may well be all of the addresses that were advertised via EIGRP
+    - R1 in the above diagram would require:
+        - `network 192.168.10.0 0.0.0.255 area 0`
+        - `network 192.168.20.0 0.0.0.255 area 0`
+        - `network 10.0.0.0 0.0.0.3 area 0`
+        - `exit`
+    - R2 in the above diagram would require:
+        - `network 10.0.0.0 0.0.0.3 area 0`
+        - `network 10.0.0.4 0.0.0.3 area 0`
+        - `exit`
+    - R3 in the above diagram would require:
+        - `network 10.0.0.4 0.0.0.3 area 0`
+        - `network 192.168.30.0 0.0.0.255 area 0`
+        - `network 192.168.40.0 0.0.0.255 area 0`
+        - `exit`
+
+## IPv6
+Configuration:
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `no router ospf 1` - disable existing IPv4 OSPF if required
+- `no router eigrp 1` - disable EIGRP if required
+- `ipv6 unicast-routing`
+- `ipv6 router ospf 1` - enable OSPF v3 for IPv6
+- `router-id <id>` - eg `router-id 10.10.10.10`
+- `interface <port>` - attach into each interface (and sub-interface (VLANs) if required) on the router
+- `no ip address` - remove IPv4 address
+- `ipv6 enable`
+- `ipv6 address <address>/<mask>` - eg `ipv6 address FC20::1/64`
+- `ipv6 ospf 1 area 0` - make sure this is enabled on every interface, inbound and outbound. Otherwise traffic will not be able to reach it to the correct OSPF router
+- `exit`
+- Repeat for other interfaces/sub-interfaces (VLANs)
+- Full working example:
+    - `R3(config)#int fa0/1.40`
+    - `R3(config-subif)#no ip address`
+    - `R3(config-subif)#ipv6 enable`
+    - `R3(config-subif)#ipv6 address FC40::1/64`
+    - `R3(config-subif)#ipv6 ospf 1 area 0`
+    - `R3(config-subif)#exit`
+
+## Election Process
+- DR is the Designated Router
+- BDR is the Backup Designated Router
+
+Can be influenced by setting one of these values below so that the desired device becomes DR/BDR:
+- Highest value router ID - specified in dot decimal notation like an IP address when OSPF is configured
+- If no router IDs set, then highest IP address value on the particular router wins. Adding loopback interfaces with higher IP addresses on them can be used to set this up (using /32 mask - 255.255.255.255)
+- Or the highest OSPF priority level set wins (255 - always win, 0 - never win)
+
+- Setting R1 to the DR in the diagram above would require us setting a router-id like `15.15.15.15`
+- Setting R2 to the BDR in the diagram above would require us setting a router-id like `10.10.10.10`
+- Setting R3 to never be DR/BDR in the diagram above would require us setting a router id of `1.1.1.1`
+- *Note* All routers must have a unique router ID, colliding IDs would cause issues with the DR/BDR election process
+
+Configuration:
+- Always disconnect crossover cables between routers before changing OSPF election process
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R2`
+- `router ospf 1`
+- `router-id <id>` - higher ID means more likely to become DR/BDR
+    - R1 in the above diagram will use `15.15.15.15` to always become DR
+    - R2 in the above diagram will use `10.10.10.10` to always become BDR
+    - R3 in the above diagram will use `1.1.1.1` to never become DR/BDR - remains as a "grunt"
+- Reconnect cables (if required)
+- Wait for adjacency messages
+- May be required to run `[do] clear ip ospf process` to reset OSPF processes, type `yes` to have this configuration take effect
+- `show ip ospf neighbors` - ensure OSPF has elected the correct router(s)
+
+
+# IPv6
+- Equipment:
+    - Routers: 1841 or 2811 series
+    - Switches: 2950 or 2960 series
+    - PCs
+
+## Switch Configuration
+- Nothing special required
+
+## Router Configuration
+Configuration:
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `ipv6 unicast-routing` - routes IPv6 packets between interfaces
+- `interface <port>` - eg `interface fa0/1`
+- `no ip address` - remove IPv4 address if required
+- `ipv6 enable`
+- `ipv6 address <address>/<mask>` - eg `ip address 2001::db8::1::1/64`
+- `no shutdown`
+- `exit`
+- Repeat for any other interfaces that need IPv6 addresses binding to them
+- Full working example:
+    - `R3(config)#int fa0/1.40`
+    - `R3(config-subif)#no ip address`
+    - `R3(config-subif)#ipv6 enable`
+    - `R3(config-subif)#ipv6 address FC40::1/64`
+    - `R3(config-subif)#exit`
+
+## PC Configuration
 
 # TODO
 Static Routes
