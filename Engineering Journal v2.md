@@ -126,7 +126,7 @@ Debug using `show vlan` (or `do show vlan` if in privileged mode) - you should s
 
 ## Single Interface Inter-VLAN Routing ("Router on a Stick")
 - Equipment:
-    - Routers: 2621XM, 1841 or 2811 series
+    - Routers: 2621XM, 1841 2811, or 2911 series
     - Switches: 2960 or 2950 series
     - PCs
 - Cable up network from diagram - take care to ensure cables are in correct ports. Best to do PCs -> Switch first and then Switch -> Router so VLAN ports do not have their ports overtaken
@@ -418,8 +418,25 @@ Debugging:
 - `via 192.168.1.65` denotes the next-hop address
 
 # Debugging
+## Devices
+### Physical
+- Check cables are connected properly and click into the device
+- Blue port on PC is for ethernet (control of switches + routers)
+- Orange ports are for connecting as a client
+    - Typically odd port
+    - May switch to even if not careful
+    - Change network adapter in VMWare if to test this
+
+### Packet Tracer
+- Use 2911 Routers if Gigabit ports are required
+- 2811 Routers only have FastEthernet ports
+
 ## Cables and Connectors
-9-pin DB9 connector -- check if the shield pin is connected correctly.
+- Green cables are ethernet
+- Gray cables are ethernet (longer)
+- Purple cables are crossover
+- Ensure cable "clicks" into place
+- 9-pin DB9 connector -- check if the shield pin is connected correctly.
 
 ## CLI Commands
 ### Interfaces
@@ -473,7 +490,7 @@ Debugging:
 - `show run`/`do show run` shows all configured ports (with indepth configuration)/other information about the device's network capability
 - `show vlan`/`do show vlan` shows all configured VLAN info
 
-## OSPF
+### OSPF
 - `show ip ospf neighbors`/`do show ip ospf neighbors` shows OSPF configuration, if a router is DR/BDR/GRUNT
     
 
@@ -538,6 +555,13 @@ Pull the config:
 
 ![alt text](ospf-ipv4.png)
 
+## Static Routes
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- Configure static routes
+- `redistribute static subnets` - only run this on border routers (routers that accept external connections into a local network)
+
 ## IPv4
 Configuration:
 - `no router eigrp 1` - disable EIGRP if required
@@ -560,6 +584,7 @@ Configuration:
         - `network 192.168.30.0 0.0.0.255 area 0`
         - `network 192.168.40.0 0.0.0.255 area 0`
         - `exit`
+- `redistribute static subnets` - for border routers - this will share static route information with other OSPF routers
 
 ## IPv6
 Configuration:
@@ -646,6 +671,52 @@ Configuration:
     - `R3(config-subif)#exit`
 
 ## PC Configuration
+
+# Static Routes
+- Equipment:
+    - Routers: 1841 or 2811 series
+    - Switches: 2950 or 2960 series
+    - PCs
+
+![alt text](firewall-basic.png)
+
+## Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `ip route <destination network> <subnet mask> <next hop>`:
+    - `<destination network>` - this is the red text following the arrow in the above diagram
+        - `192.168.10.0`
+        - `192.168.20.0`
+        - `192.168.30.0`
+        - These are the VLAN addresses from the right side of the area that need to be reachable
+    - `<subnet mask>` - this is the subnet mask associated with the specific static route
+    - `<next hop>` - this is the address of the next hop (which router to hop to next)
+        - For R1BORDER2 this would be the IP address of R1BORDER1 - `1.0.0.254`
+- For the above diagram the required static routes for R1BORDER2 to R1BORDER1 would be:
+    - `ip route 192.168.10.0 255.255.255.0 1.0.0.254`
+    - `ip route 192.168.20.0 255.255.255.0 1.0.0.254`
+    - `ip route 192.168.30.0 255.255.255.0 1.0.0.254`
+    - Each VLAN address is advertised through static routes which tells the routers "When you want to hit traffic on `x`, forward it through `y`"
+
+# Security
+## Firewalls
+- Equipment:
+    - Routers: 1841 or 2811 series
+    - Switches: 2950 or 2960 series
+    - PCs
+
+![alt text](firewall-basic.png)
+
+## Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R2`
+
+
+## NAT
+
+## PAT
 
 # TODO
 Static Routes

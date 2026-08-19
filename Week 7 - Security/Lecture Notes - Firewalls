@@ -1,0 +1,59 @@
+NAT - Network Address Translation
+Converts an internal network address to a singular exterior (public) IP address
+Called a "stateful firewall"
+Means that conversations between networks/devices must originate from inside the network, as a device outside of the network originally is unable to target specific devices on the internal network
+
+Configuration
+access-list 1 permit any
+ip nat pool {PoolName} 100.0.0.1 100.0.0.2 netmask 255.0.0.0
+ip nat inside source list 1 pool {PoolName}
+interface g0/0/0
+ip nat outside - only one `outside` can be defined
+interface g0/0/1
+ip nat inside
+
+
+
+
+PAT - Port Address Translation
+Extends NAT to a more useful range of internal addresses
+Allows 100s of internal addresses to translate to one single exterior address
+Adds port numbers to keep track of different conversations
+Allows external devices to talk to specific internal devices
+Allows for multiple conversations to occur at once - parallel processing
+
+Configuration
+access-list 1 permit any
+
+
+
+
+Static NAT
+Needed to allow for a DMZ-style exterior address for server access
+Allows conversations to start from outside the network but only for a specific address
+Real internal address stays hidden
+
+Configuration (hide web server behind 192.168.1.5 behind 34.0.0.2 exterior address)
+ip nat inside source static 192.168.1.5 34.0.0.2
+
+
+
+
+Default Routing Between Routers
+- `ip route 0.0.0.0 0.0.0.0 <target_ip>`
+
+
+Enable OSPF
+- `router ospf 1`
+- `router-id <id>` - ex `router-id 1.1.1.1` for router 1 in a network, allows routers to be distinguished
+- `default-information originate`
+- `clear ip ospf process`
+
+
+
+
+Loopback Interface Definition
+- `interface <port>` - eg `interface Loopback0`
+- `ip address <address> <mask>` - look for the IP address attached to the loopback port, eg `ip address 10.0.5.1 255.255.255.0`
+- `no shut`
+- `exit`
