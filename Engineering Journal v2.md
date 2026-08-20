@@ -566,6 +566,7 @@ Pull the config:
 Configuration:
 - `no router eigrp 1` - disable EIGRP if required
 - `router ospf 1` - enable OSPF
+- `router-id <id>` - eg `router-id 10.10.10.10`
 - Identify each network that needs to be advertised - look for direct connections to the router
 - If a switch connected to the router has VLANs, these need adding as well
 - `network <address> <wildcard> area <area>` - area will be `0` if using single-area OSPF
@@ -584,6 +585,9 @@ Configuration:
         - `network 192.168.30.0 0.0.0.255 area 0`
         - `network 192.168.40.0 0.0.0.255 area 0`
         - `exit`
+- `interface <port>` - attach into each interface (and sub-interface (VLANs) if required) on the router
+- `ip ospf 1 area <area>` - make sure this is enabled on every interface, inbound and outbound. Otherwise traffic will not be able to reach it to the correct OSPF router - eg `ip ospf 1 area 0`
+- Repeat for other interfaces (if required)
 - `redistribute static subnets` - for border routers - this will share static route information with other OSPF routers
 
 ## IPv6
@@ -708,11 +712,12 @@ Configuration:
 
 ![alt text](firewall-basic.png)
 
-## Router Configuration
+### Router Configuration
 - `enable`
 - `configure terminal`
 - `hostname <name>` - eg `hostname R2`
 
+## ACL
 
 ## NAT
 
