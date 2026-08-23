@@ -359,6 +359,52 @@ Configure EIGRP on Routers:
     - `network 10.10.1.0 0.0.0.3`
     - `network 10.10.2.0 0.0.0.255`
 
+## Authentication
+![alt text](vpn.png)
+
+### Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `key chain <chain-name>` - eg `key chain MYCHAIN`
+- `key 1`
+- `key-string <password>` - eg `key chain banana`
+- `end`/`exit`
+- Enter each interface that is connected to the interface
+- `interface <port>` - eg `g0/1`
+- `ip authentication mode eigrp <zone> md5` - eg `ip authentication mode eigrp 5 md5` - this would be if you were, for example, configuring the EIGRP routing for the Extranet in the above diagram
+- `ip authentication key-chain eigrp <zone> <chain-name>` - eg `ip authentication key-chain eigrp 5 MYCHAIN`
+- `exit`
+- Configure the authentication on other interfaces (routers) participating in that EIGRP adjacency. You don't need to put it on every interface of the router unless those interfaces also have EIGRP neighbours that need authentication.
+- Repeat this configuration on attached routers, `<chain-name>` does not have to match but the `key-string` does.
+- Working example:
+    - R1:
+        - `enable`
+        - `configure terminal`
+        - `hostname R1`
+        - `key chain MYCHAIN`
+        - `key 1`
+        - `key-string banana`
+        - `exit`
+        - `exit`
+        - `interface g0/1`
+        - `ip authentication mode eigrp 5 md5`
+        - `ip authentication key-chain eigrp 5 MYCHAIN`
+        - `exit`
+    - R2:
+        - `enable`
+        - `configure terminal`
+        - `hostname R2`
+        - `key chain OTHER-CHAIN`
+        - `key 1`
+        - `key-string banana`
+        - `exit`
+        - `exit`
+        - `interface g0/1`
+        - `ip authentication mode eigrp 5 md5`
+        - `ip authentication key-chain eigrp 5 OTHER-CHAIN`
+        - `exit`
+
 ## Debugging EIGRP
 - Check configured EIGRP networks
     - `show running-config`
@@ -538,6 +584,10 @@ Debugging:
 ### EtherChannel
 - `show etherchannel summary`/`do show etherchannel summary`
 
+### VPN
+- `show crypto isakmp sa`/`do show crypto isakmp sa` - see if the phase 1 tunnel has formed
+- `show crypto ipsec sa`/`do show crypto ipsec sa` - see if the phase 2 tunnel has formed
+
 ### Misc (Connectivity etc.)
 - `ping <destination>`
 - `tracert <destination>`
@@ -697,6 +747,51 @@ Configuration:
 - May be required to run `[do] clear ip ospf process` to reset OSPF processes, type `yes` to have this configuration take effect
 - `show ip ospf neighbors` - ensure OSPF has elected the correct router(s)
 
+## Authentication
+
+![alt text](vpn.png)
+
+### Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>`
+- `area <area> authentication message-digest` - eg `area 0 authentication message-digest` - enable OSPF authentication in area 0
+- Advertise networks as usual
+- `exit`
+- `interface <port>` - eg `g0/1` - do this for any links from the router with authentication enabled to any other routers. In the above example when configuring authentication for Gamma2 then `g0/1` and `g0/2` would need to be configured
+- `ip ospf message-digest-key 1 md5 <password>` - eg `ip ospf message-digest-key 1 md5 banana`
+- `exit`
+- Repeat for other interfaces. Passwords are defined on the interface and must match to the directly connected OSPF neighbor
+- Once this is done attach to any other routers connected that require OSPF adjacency - if the authentication is configured then the OSPF adjacency won't form as expected
+- Working example:
+    - R1:
+        - `enable`
+        - `configure terminal`
+        - `hostname R1`
+        - `interface g0/1`
+        - `ip address 10.0.0.1 255.255.255.252`
+        - `ip ospf 1 area 0`
+        - `ip ospf authentication message-digest`
+        - `ip ospf message-digest-key 1 md5 banana`
+        - `no shutdown`
+        - `exit`
+        - `router ospf 1`
+        - `router-id 2.2.2.2`
+        - `exit`
+    - R2:
+        - `enable`
+        - `configure terminal`
+        - `hostname R2`
+        - `interface g0/1`
+        - `ip address 10.0.0.2 255.255.255.252`
+        - `ip ospf 1 area 0`
+        - `ip ospf authentication message-digest`
+        - `ip ospf message-digest-key 1 md5 banana`
+        - `no shutdown`
+        - `exit`
+        - `router ospf 1`
+        - `router-id 2.2.2.2`
+        - `exit`
 
 # IPv6
 - Equipment:
@@ -882,8 +977,133 @@ Example:
     - `network 1.0.0.0 0.0.0.255 area 0`
     - Check network connectivity using public NAT from opposite sides of the network (communication to web servers on the same side using NAT address will not work)
 
-# TODO
-IPv4 Subnetting
-STP
-Port Security
-Basic Switch Management
+# VPN
+- Equipment:
+    - Routers: 2801, 2911 series (2821 do not have security features built into the OS)
+    - Switches: 2950 or 2960 series
+    - PCs
+
+![alt text](vpn.png)
+
+## GRE
+### Router Configuration
+- Identify routers on each "side" of the VPN
+- `interface tunnel <number>` - eg `interface tunnel 0` - this will be defined on the diagram which tunnel will be used
+- `ip address <ip address> <mask>` - eg `192.168.0.2 255.255.255.252` - this will be the IP attached to the router in blue on the VPN declaration
+- `tunnel source <port>` - eg `tunnel source g0/1` - look for the connection between routers (in the example Alpha 1 is connected to the Gamma 1 Border Router via `g0/1` - this is the tunnel source) 
+- `tunnel destination <ip address>` - eg `tunnel destination 10.20.4.2` - this is the physical address of the router on the other side of the VPN
+- `exit`
+- `router eigrp <area>` - eg `router eigrp 5` for extranet areas on alpha routers, enter EIGRP for the specific area (if required)
+- `network <ip address> <mask>` - eg `network 192.168.0.0` - advertise VPN network (blue text in the diagram) in EIGRP so communication can happen correctly - new adjacency should show up
+- Repeat configuration on the router on the other side of the VPN
+- Test routers can now ping eachother (in the diagram above using `192.168.0.1`/`192.168.0.2`, for example)
+- Enable security features on border (Gamma) routers which the extranet router is connected to
+- Working example:
+    - Enter Alpha 1 Router
+    - `interface tunnel 0`
+    - `ip address 192.168.0.2 255.255.255.252`
+    - `tunnel source g0/1`
+    - `tunnel destination 10.20.4.2`
+    - `exit`
+    - `router eigrp 5`
+    - `network 192.168.0.0 255.255.255.252`
+    - `ping 192.168.0.1`/`do ping 192.168.0.1` - should now succeed
+    - Enter Alpha 2 Router
+    - `interface tunnel 0`
+    - `ip address 192.168.0.1 255.255.255.252`
+    - `tunnel source g0/1`
+    - `tunnel destination 10.10.4.2`
+    - `exit`
+    - `router eigrp 5`
+    - `network 192.168.0.0 255.255.255.252`
+    - `ping 192.168.0.2`/`do ping 192.168.0.2` - should now succeed
+    - Enter Gamma 1 Router
+    - `license boot module c2900 technology-package securityk9`
+    - `yes`
+    - `exit`
+    - `write memory`
+    - `reload`
+    - Enter Gamma 2 Router
+    - `license boot module c2900 technology-package securityk9`
+    - `yes`
+    - `exit`
+    - `write memory`
+    - `reload`
+
+## IKE Phase 1 - Only set up once GRE tunnel is configured!
+### Router Configuration (Border Router)
+- This configuration is done on the border routers - in the diagram above this will be the Gamma Routers
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `access-list <number> permit gre host <ip address> host <ip address>` - eg `access-list 101 permit gre host 10.10.4.2 host 10.20.4.2`:
+    - First IP is the physical address of the near side of the VPN connection
+    - Second IP is the physical address of the far side of the VPN connection
+        - For Gamma 1 configuration this will be `access-list 101 permit gre host 10.10.4.2 host 10.20.4.2`
+        - For Gamma 2 configuration this will be `access-list 101 permit gre host 10.20.4.2 host 10.10.4.2`
+- `crypto isakmp enable`
+- `crypto isakmp policy 1`
+- `authentication pre-share`
+- `encryption des`
+- `hash md5`
+- `group 1`
+- `lifetime 34000`
+- `exit`
+- `crypto isakmp key <key> address <ip>` - eg `crypto isakmp key grapefruit address 1.0.0.1` - the IP address used at the end here is the far side of the connection between border routers. When configuring Gamma 1 to be able to talk to Gamma 2, the IP address used will be `1.0.0.254`
+- Repeat configuration on the connected border router, change values to match
+
+## IKE Phase 2 - Only set up one IKE Phase 1 is configured!
+### Router Configuration
+- This configuration is done on both routers
+- Enter one of the border routers
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `crypto ipsec transform-set <name> esp-3des esp-sha-hmac` - eg `crypto ipsec transform-set MyVPN esp-3des esp-sha-hmac`
+- `crypto map <router name> 1 ipsec-isakmp` - eg `crypto map Gamma1 1 ipsec-isakmp` - make sure this matches the name of the router that you are connected to
+- `match address <control-list number>` - eg `match address 101` - make sure this matches the number of the ACL created
+- `set peer <ip address>` - eg `set peer 1.0.0.1` - make sure the IP address matches the physical IP address of the peer router
+    - When configuring Gamma 1, this would be `1.0.0.1`
+    - When configuring Gamma 2, this would be `1.0.0.2`
+- `set transform-set <name>` - eg `set transform-set MyVPN` - make sure this matches the name set in the `crypto ipsec transform-set ...` command
+- `set pfs group2`
+- `set security-association lifetime seconds 44000`
+- `exit`
+- Repeat configuration on the border router on the other side of the VPN (gamma router)
+
+## Enable and test VPN
+- Ensure routers that are to be connected can still ping one another
+- Configuration needs to be done on both border (gamma routers) as they have the trunk link between them
+- Enter one of the border routers that the `crypto` configuration was done on
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `interface <port>` - enter the trunk-port connecting routers (in the above diagram this is `g0/0`)
+- `crypto map <name>` - eg `crypto map MyVPN` - make sure this name matches the name of the `transform-set` set above
+- Message should appear saying that ISAKMP is on
+- Repeat on other router
+- Ping from PC -> PC - if the connection doesn't establish straight away this is fine, VPN may take some time to come online
+- `show crypto isakmp sa`/`do show crypto isakmp sa` - see if the phase 1 tunnel has formed
+- `show crypto ipsec sa`/`do show crypto ipsec sa` - see if the phase 2 tunnel has formed
+
+## Switch Configuration - Monitor Station
+- Enter switch configured between the distinct areas (connecting border routers)
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname S1`
+- `monitor session 1 source interface <port-range>` - eg `monitor session 1 source interface fa0/1 - 23` - this will copy all frames moving around on ports 1-23. Make sure spaces between `-` and the ports otherwise the command will fail!
+- `monitor session 1 destination interface <port>` - eg `monitor session 1 destination interface fa0/24` - this is where the copied frames from the step above will be output to
+
+# Security Features - Packet Tracer only!
+- 2911 or 2901 series:
+    - `license boot module c2900 technology-package securityk9`
+    - `yes` - when prompted with `ACCEPT [yes/no]`
+    - `exit`
+    - `write memory`
+    - `reload`
+- 1941:
+    - `license boot module c1900 technology-package securityk9`
+    - `yes` - when prompted with `ACCEPT [yes/no]`
+    - `exit`
+    - `write memory`
+    - `reload`
