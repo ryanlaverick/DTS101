@@ -327,6 +327,38 @@ Configure EIGRP on Routers:
     - `/24` (`255.255.255.0`) becomes `0.0.0.255`
     - `/30` (`255.255.255.252`) becomes `0.0.0.3`
 
+## Multi-Zone
+- Used for creating multiple EIGRP zones that will allow traffic to a certain point, but nothing past it.
+- In the following diagram EIGRP area 5's DHCP client can talk to its Alpha router, but cannot go any further
+- Alpha router can talk directly to Beta and Gamma routers in EIGRP area 10
+
+- Equipment:
+    - Routers: 2621XM, 1841 or 2811 series
+    - Switches: 2960 or 2950 series
+    - PCs
+
+![alt text](dhcp.png)
+
+### Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- Working Example (Alpha)
+    - `router eigrp 5` - create extranet
+    - `network 192.168.1.0 255.255.255.0`
+    - `router eigrp 10` - create private network
+    - `network 10.10.4.0 0.0.0.3` - allows traffic directly from Alpha 1 to Gamma + Beta routers
+    - `show run`/`do show run` - check configuration
+- Working Example (Gamma)
+    - `router eigrp 10`
+    - `network 10.10.4.0 0.0.0.3`
+    - `network 10.10.3.0 0.0.0.255`
+    - `network 10.10.1.0 0.0.0.3`
+- Working Example (Beta)
+    - `router eigrp 10`
+    - `network 10.10.1.0 0.0.0.3`
+    - `network 10.10.2.0 0.0.0.255`
+
 ## Debugging EIGRP
 - Check configured EIGRP networks
     - `show running-config`
@@ -379,14 +411,36 @@ Configure Active (Primary) Router:
     - Switches: 2960 or 2950 series
     - PCs
 
-Configuration:
-- `ip dhcp excluded-address <start IP>|[<end IP>]` - make sure to do this for each statically assigned IP address (including those of routers and switches)
-- Always configure DHCP Server *before* connecting it to any other switches or routers
-- `ip dhcp pool <poolname>` - ex `ip dhcp pool fred`
-- `network <network ID/subnet ID> <mask>` - ex `network 10.0.0.0 255.255.255.0`
-- `default-router <default gateway address>` - ex `default router 10.0.0.1`
+![alt text](dhcp.png)
+
+### Router Configuration
+Configuration examples are for EIGRP Area 5 (Extranet)
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- Identify addresses that should not be given out via DHCP
+- `ip dhcp excluded-address <start IP> <end IP - optional>` - prevent specific IPs, or IP ranges from being assigned to DHCP clients, eg `ip dhcp excluded-address 10.10.0.0 10.10.255.255`/`ip dhcp excluded-address 192.168.1.1` - always do this before setting up DHCP
+- `ip dhcp pool <name>` - establishes DHCP pool (eg `ip dhcp pool extranet`)
+- `network <ip address> <mask>` - assigns network for DHCP, this is the first three octets of the gateway/router IP (eg `network 192.168.1.0 255.255.255.0` for a gateway of `192.168.1.1`) - defines how traffic can get out
+- `default-router <ip address>` - this assigns the gateway IP for traffic, this may be the same IP as the router in the diagram (eg `default-router 192.168.1.1`)
 - `exit`
-- Test DHCP by connecting to a Client, going into IP Configuration and selecting DHCP
+- Working Example (EIGRP Area 5):
+    - `ip dhcp excluded-address 10.10.0.0 10.10.255.255` - prevent IP ranges for the private network being assigned
+    - `ip dhcp excluded-address 192.168.1.1` - prevent default gateway IP being assigned
+    - `ip dhcp pool extranet`
+    - `network 192.168.1.0 255.255.255.0`
+    - `default-router 192.168.1.1`
+    - `exit`
+
+### Debugging
+- `ipconfig /renew` - renew IPConfig (pull DHCP if misconfigured)
+
+### PC Configuration
+#### Packet Tracer
+- Click into PC
+- Desktop
+- IP Configuration
+- Select DHCP
 
 # Default Routes
 - AD is "administrative distance" - AD is used to determine the preference between routes to the same destination learned from different sources. Lower AD is preferred.
@@ -586,7 +640,6 @@ Configuration:
         - `network 192.168.40.0 0.0.0.255 area 0`
         - `exit`
 - `interface <port>` - attach into each interface (and sub-interface (VLANs) if required) on the router
-- `ip ospf 1 area <area>` - make sure this is enabled on every interface, inbound and outbound. Otherwise traffic will not be able to reach it to the correct OSPF router - eg `ip ospf 1 area 0`
 - Repeat for other interfaces (if required)
 - `redistribute static subnets` - for border routers - this will share static route information with other OSPF routers
 
@@ -828,7 +881,6 @@ Example:
     - `router ospf 1`
     - `network 1.0.0.0 0.0.0.255 area 0`
     - Check network connectivity using public NAT from opposite sides of the network (communication to web servers on the same side using NAT address will not work)
-
 
 # TODO
 IPv4 Subnetting
