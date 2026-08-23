@@ -704,31 +704,134 @@ Configuration:
     - Each VLAN address is advertised through static routes which tells the routers "When you want to hit traffic on `x`, forward it through `y`"
 
 # Security
-## Firewalls
+## ACLs (Access Control Lists) - Packet Filter Firewall
 - Equipment:
-    - Routers: 1841 or 2811 series
+    - Routers: 2811, 2911 series
     - Switches: 2950 or 2960 series
     - PCs
 
+- Can be numbered 1-99
+- Set up as close to the destination of the traffic, in the above example this would be the border routers as any endpoints sit directly behind them
+- In a multi-router setup you would do it on the closest router to the endpoint you are protecting
+
+Example:
 ![alt text](firewall-basic.png)
 
 ### Router Configuration
 - `enable`
 - `configure terminal`
-- `hostname <name>` - eg `hostname R2`
+- `hostname <name>` - eg `hostname R1`
+- `access-list <number> [deny|permit] <ip address> <wildcard mask>` - eg `access-list 1 deny 192.168.10.0 0.0.0.255` - specifically permit or deny traffic to/from a specific destination
+- Repeat above step for any other addresses that need to be blocked
+- `access-list <number> permit any` - eg `access-list <number> permit any` - explicitly allow all other traffic, ACLs will work top-down from most specific rule to most generic. Any specific IP addresses will be blocked, and anything that does not match a prior rule will be allowed
+- `interface <port>` - eg `interface g0/1.3` (subnets will work here!) - enter the specific interface which needs to have the ACL
+- `ip access-group <number> [in|out]` - adds ACL to specific interface, `out` will affect traffic originating from inside the endpoint attempting to go out, `in` will affect traffic originating outside the endpoint attempting to get in
+- Working example:
+    - Enter R1 Border 2 in example above
+    - `access-list 1 deny 192.168.10.0 0.0.0.255`
+    - `access-list 1 deny 192.168.20.0 0.0.0.255`
+    - `access-list 1 deny 192.168.30.0 0.0.0.255`
+    - `access-list 1 permit any`
+    - `interface g0/1.3`
+    - `ip access-group 1 out` - this will use the `1` access-list and block outbound traffic from VLAN 3. `in` is the inverse which will block inbound traffic
+    - Enter any device on Network Area 1 and attempt to ping `192.168.3.2` - pings should now fail
 
-## ACL
 
-## NAT
+## Extended ACLs
+- Equipment:
+    - Routers: 1841 or 2811 series
+    - Switches: 2950 or 2960 series
+    - PCs
 
-## PAT
+- Can be numbered 100-199
+- Can specify source and destinations for traffic, set up on the router as close as possible to the source of the traffic as possible, in the above example this would be the border routers as any endpoints sit directly behind them
+- In a multi-router setup you would do it on the closest router to the endpoint you are protecting
+
+Example:
+![alt text](firewall-basic.png)
+
+### Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- `access-list <number> [deny|permit] <ip address> <wildcard mask> any` - eg `access-list 101 deny icmp 192.168.10.0 0.0.0.255 any`
+- Repeat above step for any other addresses that need to be permitted/denied
+- `access-list <number> permit ip any any` - eg `access-list 101 permit ip any any` - explicitly allow all other traffic, ACLs will work top-down from most specific rule to most generic. Any specific IP addresses will be blocked, and anything that does not match a prior rule will be allowed
+- `interface <port>` - eg `interface g0/0` - this is the crossover connection between border routers in the above example
+- `ip access-group <number> [in|out]` - adds ACL to specific interface. `in` will filter packets arriving at the interface before the router processes them. `out` will filter packets leaving the interface after the router processes them. Using `in` here will entirely prevent the R1 Border 1 router from processing the packets, where using `out` would allow them to be processed but would not allow them to progress past the border.
+- Working example:
+    - `ping 1.0.0.254`/`do ping 1.0.0.254` - this will succeed
+    - `ping 192.168.20.4`/`do ping 192.168.20.4` - this will succeed
+    - Enter R1 Border 2 (as this is closest to the source of the pings)
+    - `access-list 101 deny icmp 192.168.10.0 0.0.0.255 any`
+    - `access-list 101 deny icmp 192.168.20.0 0.0.0.255 any`
+    - `access-list 101 deny icmp 192.168.30.0 0.0.0.255 any`
+    - `access-list 101 permit ip any any`
+    - `interface g0/0`
+    - `ip access-group 101 [in|out]`
+    - This will block traffic going past the border router, but will still allow communication with the border router itself
+    - `ping 1.0.0.254`/`do ping 1.0.0.254` - this should still succeed
+    - `ping 192.168.20.4`/`do ping 192.168.20.4` - this should now fail
+    - Repeat for border router 1 using the static IPs for Network Area 2 (`192.168.3.0` etc)
+
+## NAT + PAT
+- Equipment:
+    - Routers: 2811, 2911 series
+    - Switches: 2950 or 2960 series
+    - PCs
+
+- Allows internal endpoints (such as web servers) to be made publicly available without advertising their actual IP address - `192.168.5.55` can be hidden behind `1.0.0.5`, for example
+
+Example:
+![alt text](firewall-basic.png)
+
+### Router Configuration
+- `enable`
+- `configure terminal`
+- `hostname <name>` - eg `hostname R1`
+- Enter router connected to the endpoint to make available
+- `ip nat inside source static <actual ip address> <NAT address>` - eg `ip nat inside source static 192.168.10.55 1.0.0.10` - this hides `192.168.10.55` behind `1.0.0.10` - NAT addresses will be specified on the diagrams next to the end point that needs them
+- Set up default routes on border routers (if required) so internal private routers can find 1.0.0.0 address
+- Enter router that is connected to the endpoint with the NAT address
+- `access-list <number> permit any` - eg `access-list 1 permit any`
+- `ip nat inside source list <number> interface <port> overload` - eg `ip nat inside source list 1 interface g0/0 overload` - `overload` enables PAT
+- Enter each sub-interface (`g0/1.3`, `g0/1.30` etc)
+- `ip nat inside`
+- Enter port which traffic will flow into the router (`g0/0` for both border routers in the diagram)
+- `ip nat outside` - only one interface can be designated as the `outside` (ingress) interface
+- `router ospf <area>` - eg `router ospf 1`
+- `network <ip> <wildcard mask> area <area>` - eg `network 1.0.0.0 0.0.0.255 area 2` - advertises trunk port so communication can occur between the zones using the public NAT
+- Working example
+    - Aim: Allow Web Servers to be available on `1.0.0.x` addresses without access via internal IPs
+    - Enter R1 Border 1
+    - `ip nat inside source static 192.168.10.55 1.0.0.10`
+    - `interface g0/1.10`
+    - `ip nat inside`
+    - `interface g0/1.20`
+    - `ip nat inside`
+    - `interface g0/1.20`
+    - `ip nat inside`
+    - `interface g0/0`
+    - `ip nat outside`
+    - `router ospf 1`
+    - `network 1.0.0.0 0.0.0.255 area 0`
+    - Enter R1 Border 2
+    - `ip nat inside source static 192.168.5.55 1.0.0.5`
+    - `interface g0/1.3`
+    - `ip nat inside`
+    - `interface g0/1.4`
+    - `ip nat inside`
+    - `interface g0/1.5`
+    - `ip nat inside`
+    - `interface g0/0`
+    - `ip nat outside`
+    - `router ospf 1`
+    - `network 1.0.0.0 0.0.0.255 area 0`
+    - Check network connectivity using public NAT from opposite sides of the network (communication to web servers on the same side using NAT address will not work)
+
 
 # TODO
-Static Routes
 IPv4 Subnetting
 STP
 Port Security
-ACL
-NAT/PAT
-SSH
 Basic Switch Management
