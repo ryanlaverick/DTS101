@@ -1,0 +1,8 @@
+I spent this time learning about VPN protocols in networking, we learnt about the various stages of VPN setup across a multi-router network - including:
+- GRE Tunnel - this sets up a tunnel between routers allowing them to communicate on a specific IP address
+- IKE Phase 1 - this is the first step of VPN setup which is used to negotiate security keys between two connected routers within distinct networks
+- IKE Phase 2 - this is the final step of VPN setup which occurs after the IKE Phase 1 tunnel has formed, and is responsible for negotiating the different configuration of the VPN (including peer address, encryption method, lifetimes etc)
+
+VPN, standing for virtual private network, is a way of "tunneling" between two subnets in a larger network, giving endpoints access to specific web servers (or other endpoints) within a network without making the network publicly available. We specifically covered IPSEC VPNs, although SSL VPNs also exist. We learnt how to configure this within a network and tested this on both packet tracer and real kit to ensure this worked as expected. We also learnt about packet sniffing to ensure that traffic within a VPN is encrypted correctly and is not susceptible to being accessed by unauthorised actors through man-in-the-middle attacks
+
+I have covered the following KSBs: K1, K2, K3, K5, K11, K16, K19, K61, K64, K65, K67, S9, S12, S57, S58, S59, S61, S62, B1, B2, B3, B4, B6, B7, B8
