@@ -751,7 +751,7 @@ Configuration:
 
 ![alt text](vpn.png)
 
-### Router Configuration
+### Router Configuration
 - `enable`
 - `configure terminal`
 - `hostname <name>`
@@ -1029,7 +1029,7 @@ Example:
     - `reload`
 
 ## IKE Phase 1 - Only set up once GRE tunnel is configured!
-### Router Configuration (Border Router)
+### Router Configuration (Border Router)
 - This configuration is done on the border routers - in the diagram above this will be the Gamma Routers
 - `enable`
 - `configure terminal`
