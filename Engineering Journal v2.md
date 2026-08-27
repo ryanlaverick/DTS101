@@ -337,7 +337,7 @@ Configure EIGRP on Routers:
     - Switches: 2960 or 2950 series
     - PCs
 
-![alt text](dhcp.png)
+![alt text](vpn.png)
 
 ### Router Configuration
 - `enable`
@@ -457,7 +457,7 @@ Configure Active (Primary) Router:
     - Switches: 2960 or 2950 series
     - PCs
 
-![alt text](dhcp.png)
+![alt text](vpn.png)
 
 ### Router Configuration
 Configuration examples are for EIGRP Area 5 (Extranet)
@@ -822,8 +822,6 @@ Configuration:
     - `R3(config-subif)#ipv6 address FC40::1/64`
     - `R3(config-subif)#exit`
 
-## PC Configuration
-
 # Static Routes
 - Equipment:
     - Routers: 1841 or 2811 series
@@ -933,7 +931,7 @@ Example:
 Example:
 ![alt text](firewall-basic.png)
 
-### Router Configuration
+### Router Configuration
 - `enable`
 - `configure terminal`
 - `hostname <name>` - eg `hostname R1`
@@ -1030,7 +1028,7 @@ Example:
     - `write memory`
     - `reload`
 
-## IKE Phase 1 - Only set up once GRE tunnel is configured!
+## IKE Phase 1 - Only set up once GRE tunnel is configured!
 ### Router Configuration (Border Router)
 - This configuration is done on the border routers - in the diagram above this will be the Gamma Routers
 - `enable`
@@ -1071,7 +1069,7 @@ Example:
 - `exit`
 - Repeat configuration on the border router on the other side of the VPN (gamma router)
 
-## Enable and test VPN
+## Enable and test VPN
 - Ensure routers that are to be connected can still ping one another
 - Configuration needs to be done on both border (gamma routers) as they have the trunk link between them
 - Enter one of the border routers that the `crypto` configuration was done on
