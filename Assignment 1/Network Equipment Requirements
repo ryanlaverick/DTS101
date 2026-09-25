@@ -1,0 +1,45 @@
+ISP
+3x Routers
+2x Switches
+
+Amenities
+2x Routers
+2x Switches
+10x PCs
+
+Admin (+ Goods Gate Security, Main Gate Security)
+5x Routers
+3x Switches
+1x Wireless LAN Controller
+1x Lightweight Access Point
+30x PCs
+3x Printers
+1x Scanner
+
+Warehouse
+3x Routers
+3x Switches
+4x PCs
+
+Manufacturing (+ Security Booth PC)
+9x Routers
+9x Switches
+64x PCs
+
+Overall:
+22x Routers
+19x Switches
+1x Wireless LAN Controller
+1x Lightweight Access Point
+108x PCs
+3x Printers
+
+------------
+
+4x Switches must be Cisco as they are running PAgP (recommended: 3650 series)
+15x Switches can be any vendor
+
+4x Routers running HSRP
+ISP and Manufacturing Border Routers should be Cisco 2911 series due to high-throughput and resilience
+
+16x Routers can be any vendor (recommended: TP-Link Routers)
